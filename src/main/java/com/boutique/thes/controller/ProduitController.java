@@ -39,14 +39,12 @@ public class ProduitController {
         
         Page<Produit> pageProduits;
         
-        // Recherche avec filtres ou liste complète
         if ((recherche != null && !recherche.isEmpty()) || (typeThe != null && !typeThe.isEmpty())) {
             pageProduits = produitService.search(recherche, typeThe, page, size, sort, direction);
         } else {
             pageProduits = produitService.findAll(page, size, sort, direction);
         }
         
-        // Ajouter les attributs au modèle
         model.addAttribute("produits", pageProduits);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", pageProduits.getTotalPages());
@@ -54,6 +52,7 @@ public class ProduitController {
         model.addAttribute("sortDirection", direction);
         model.addAttribute("recherche", recherche != null ? recherche : "");
         model.addAttribute("typeThe", typeThe != null ? typeThe : "");
+        model.addAttribute("typesDisponibles", produitService.findAllTypes());
         
         return "index";
     }
@@ -64,6 +63,7 @@ public class ProduitController {
     @GetMapping("/nouveau")
     public String nouveauProduit(Model model) {
         model.addAttribute("produit", new Produit());
+        model.addAttribute("typesDisponibles", produitService.findAllTypes());
         return "formulaire-produit";
     }
     
@@ -89,6 +89,7 @@ public class ProduitController {
             return "redirect:/";
         }
         model.addAttribute("produit", produit.get());
+        model.addAttribute("typesDisponibles", produitService.findAllTypes());
         return "formulaire-produit";
     }
     
@@ -103,7 +104,6 @@ public class ProduitController {
             return "formulaire-produit";
         }
         
-        // Vérification de l'existence du produit
         if (!produitService.findById(id).isPresent()) {
             return "redirect:/";
         }
@@ -130,10 +130,8 @@ public class ProduitController {
             @RequestParam(required = false) String recherche,
             @RequestParam(required = false) String typeThe) {
         
-        // Récupérer tous les produits correspondant aux critères de recherche
         List<Produit> produits;
         if ((recherche != null && !recherche.isEmpty()) || (typeThe != null && !typeThe.isEmpty())) {
-            // Récupérer tous les résultats sans pagination pour l'export
             Page<Produit> page = produitService.search(recherche, typeThe, 0, Integer.MAX_VALUE, "nom", "asc");
             produits = page.getContent();
         } else {
@@ -141,10 +139,8 @@ public class ProduitController {
             produits = page.getContent();
         }
         
-        // Générer le CSV
         String csv = produitService.exportToCsv(produits);
         
-        // Préparer la réponse HTTP
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType("text/csv"));
         headers.setContentDispositionFormData("attachment", "produits.csv");

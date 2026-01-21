@@ -20,9 +20,6 @@ public class ProduitService {
         this.produitRepository = produitRepository;
     }
     
-    /**
-     * Récupère tous les produits avec pagination et tri
-     */
     public Page<Produit> findAll(int page, int size, String sortBy, String direction) {
         Sort sort = direction.equalsIgnoreCase("desc") 
             ? Sort.by(sortBy).descending() 
@@ -31,28 +28,21 @@ public class ProduitService {
         return produitRepository.findAll(pageable);
     }
     
-    /**
-     * Recherche des produits par nom et/ou type avec pagination et tri
-     */
     public Page<Produit> search(String nom, String typeThe, int page, int size, String sortBy, String direction) {
         Sort sort = direction.equalsIgnoreCase("desc") 
             ? Sort.by(sortBy).descending() 
             : Sort.by(sortBy).ascending();
         Pageable pageable = PageRequest.of(page, size, sort);
         
-        // Cas 1 : Recherche par nom ET type
         if (nom != null && !nom.isEmpty() && typeThe != null && !typeThe.isEmpty()) {
             return produitRepository.findByNomContainingIgnoreCaseAndTypeThe(nom, typeThe, pageable);
         }
-        // Cas 2 : Recherche par nom seulement
         else if (nom != null && !nom.isEmpty()) {
             return produitRepository.findByNomContainingIgnoreCase(nom, pageable);
         }
-        // Cas 3 : Recherche par type seulement
         else if (typeThe != null && !typeThe.isEmpty()) {
             return produitRepository.findByTypeThe(typeThe, pageable);
         }
-        // Cas 4 : Aucun filtre, retourner tous les produits
         else {
             return findAll(page, size, sortBy, direction);
         }
@@ -83,15 +73,20 @@ public class ProduitService {
     }
     
     /**
+     * Récupère tous les types de thé distincts disponibles
+     */
+    public List<String> findAllTypes() {
+        return produitRepository.findDistinctTypeTheBy();
+    }
+    
+    /**
      * Exporte une liste de produits au format CSV
      */
     public String exportToCsv(List<Produit> produits) {
         StringBuilder csv = new StringBuilder();
         
-        // En-tête CSV
         csv.append("\"id\",\"nom\",\"typeThe\",\"origine\",\"prix\",\"quantiteStock\",\"description\",\"dateReception\"\n");
         
-        // Lignes de données
         for (Produit produit : produits) {
             csv.append("\"").append(escapeValue(produit.getId())).append("\",");
             csv.append("\"").append(escapeValue(produit.getNom())).append("\",");
@@ -114,7 +109,6 @@ public class ProduitService {
             return "";
         }
         String stringValue = value.toString();
-        // Échapper les guillemets en les doublant
         return stringValue.replace("\"", "\"\"");
     }
 }

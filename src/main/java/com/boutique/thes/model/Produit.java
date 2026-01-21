@@ -21,10 +21,10 @@ public class Produit {
     private String nom;
 
     @NotBlank(message = "Le type de thé est obligatoire")
-    private String typeThe; // Vert, Noir, Oolong, Blanc, Pu-erh
+    private String typeThe;
 
     @NotBlank(message = "L'origine est obligatoire")
-    private String origine; // Chine, Japon, Inde, Sri Lanka, Taiwan
+    private String origine;
 
     @NotNull(message = "Le prix est obligatoire")
     @DecimalMin(value = "5.0", message = "Le prix doit être au minimum 5€")

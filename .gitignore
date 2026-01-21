@@ -31,3 +31,11 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### SQL Developer ###
+data.sql
+*.log
+*.sqljournal
+*.dbhistory
+*.dmp
+*.xml

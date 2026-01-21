@@ -18,15 +18,14 @@
         <!-- Formulaire de recherche et filtre -->
         <form th:action="@{/}" method="get" class="search-form">
             <input type="text" name="recherche" th:value="${recherche}" placeholder="Rechercher par nom...">
-            <select name="typeThe">
+            <select name="typeThe" onchange="this.form.submit()">
                 <option value="">Tous les types</option>
-                <option value="Vert" th:selected="${typeThe == 'Vert'}">Vert</option>
-                <option value="Noir" th:selected="${typeThe == 'Noir'}">Noir</option>
-                <option value="Oolong" th:selected="${typeThe == 'Oolong'}">Oolong</option>
-                <option value="Blanc" th:selected="${typeThe == 'Blanc'}">Blanc</option>
-                <option value="Pu-erh" th:selected="${typeThe == 'Pu-erh'}">Pu-erh</option>
+                <option th:each="type : ${typesDisponibles}" 
+                        th:value="${type}" 
+                        th:text="${type}"
+                        th:selected="${typeThe == type}"></option>
             </select>
-            <button type="submit" class="btn">Rechercher</button>
+            <button type="submit" class="btn">Rechercher par nom</button>
         </form>
 
         <!-- Message si aucun produit -->

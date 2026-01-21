@@ -24,11 +24,9 @@
                 <label for="typeThe">Type de Thé *</label>
                 <select id="typeThe" th:field="*{typeThe}" required>
                     <option value="">Sélectionnez un type</option>
-                    <option value="Vert">Vert</option>
-                    <option value="Noir">Noir</option>
-                    <option value="Oolong">Oolong</option>
-                    <option value="Blanc">Blanc</option>
-                    <option value="Pu-erh">Pu-erh</option>
+                    <option th:each="type : ${typesDisponibles}" 
+                            th:value="${type}" 
+                            th:text="${type}"></option>
                 </select>
                 <span th:if="${#fields.hasErrors('typeThe')}" th:errors="*{typeThe}" class="error"></span>
             </div>
