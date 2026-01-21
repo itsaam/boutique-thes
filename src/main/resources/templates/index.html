@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Boutique de Thés - Gestion des Produits</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <h1>Gestion des Produits - Boutique de Thés</h1>
+        
+        <!-- Boutons en haut -->
+        <div class="actions">
+            <a th:href="@{/nouveau}" class="btn">Nouveau Produit</a>
+            <a th:href="@{/export-csv(recherche=${recherche}, typeThe=${typeThe})}" class="btn">Exporter CSV</a>
+        </div>
+
+        <!-- Formulaire de recherche et filtre -->
+        <form th:action="@{/}" method="get" class="search-form">
+            <input type="text" name="recherche" th:value="${recherche}" placeholder="Rechercher par nom...">
+            <select name="typeThe">
+                <option value="">Tous les types</option>
+                <option value="Vert" th:selected="${typeThe == 'Vert'}">Vert</option>
+                <option value="Noir" th:selected="${typeThe == 'Noir'}">Noir</option>
+                <option value="Oolong" th:selected="${typeThe == 'Oolong'}">Oolong</option>
+                <option value="Blanc" th:selected="${typeThe == 'Blanc'}">Blanc</option>
+                <option value="Pu-erh" th:selected="${typeThe == 'Pu-erh'}">Pu-erh</option>
+            </select>
+            <button type="submit" class="btn">Rechercher</button>
+        </form>
+
+        <!-- Message si aucun produit -->
+        <p th:if="${produits.empty}" class="no-results">Aucun produit trouvé.</p>
+
+        <!-- Tableau des produits -->
+        <table th:if="${!produits.empty}">
+            <thead>
+                <tr>
+                    <th><a th:href="@{/(sort='nom', direction=${sortBy == 'nom' and sortDirection == 'asc' ? 'desc' : 'asc'}, recherche=${recherche}, typeThe=${typeThe})}">Nom</a></th>
+                    <th><a th:href="@{/(sort='typeThe', direction=${sortBy == 'typeThe' and sortDirection == 'asc' ? 'desc' : 'asc'}, recherche=${recherche}, typeThe=${typeThe})}">Type</a></th>
+                    <th><a th:href="@{/(sort='origine', direction=${sortBy == 'origine' and sortDirection == 'asc' ? 'desc' : 'asc'}, recherche=${recherche}, typeThe=${typeThe})}">Origine</a></th>
+                    <th><a th:href="@{/(sort='prix', direction=${sortBy == 'prix' and sortDirection == 'asc' ? 'desc' : 'asc'}, recherche=${recherche}, typeThe=${typeThe})}">Prix (€)</a></th>
+                    <th><a th:href="@{/(sort='quantiteStock', direction=${sortBy == 'quantiteStock' and sortDirection == 'asc' ? 'desc' : 'asc'}, recherche=${recherche}, typeThe=${typeThe})}">Stock</a></th>
+                    <th><a th:href="@{/(sort='dateReception', direction=${sortBy == 'dateReception' and sortDirection == 'asc' ? 'desc' : 'asc'}, recherche=${recherche}, typeThe=${typeThe})}">Date Réception</a></th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="produit : ${produits}">
+                    <td th:text="${produit.nom}">Nom</td>
+                    <td th:text="${produit.typeThe}">Type</td>
+                    <td th:text="${produit.origine}">Origine</td>
+                    <td th:text="${#numbers.formatDecimal(produit.prix, 1, 2)}">Prix</td>
+                    <td th:text="${produit.quantiteStock}">Stock</td>
+                    <td th:text="${produit.dateReception != null ? #temporals.format(produit.dateReception, 'dd/MM/yyyy') : '-'}">Date</td>
+                    <td class="actions-cell">
+                        <a th:href="@{/modifier/{id}(id=${produit.id})}" class="btn btn-small">Modifier</a>
+                        <form th:action="@{/supprimer/{id}(id=${produit.id})}" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-small btn-delete" 
+                                    onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce produit ?');">Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Pagination -->
+        <div th:if="${totalPages > 1}" class="pagination">
+            <a th:if="${currentPage > 0}" 
+               th:href="@{/(page=${currentPage - 1}, size=10, sort=${sortBy}, direction=${sortDirection}, recherche=${recherche}, typeThe=${typeThe})}" 
+               class="btn btn-small">Précédent</a>
+            
+            <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                <a th:href="@{/(page=${i}, size=10, sort=${sortBy}, direction=${sortDirection}, recherche=${recherche}, typeThe=${typeThe})}" 
+                   th:text="${i + 1}"
+                   th:classappend="${i == currentPage} ? 'active' : ''"
+                   class="btn btn-small page-num"></a>
+            </span>
+            
+            <a th:if="${currentPage < totalPages - 1}" 
+               th:href="@{/(page=${currentPage + 1}, size=10, sort=${sortBy}, direction=${sortDirection}, recherche=${recherche}, typeThe=${typeThe})}" 
+               class="btn btn-small">Suivant</a>
+        </div>
+    </div>
+</body>
+</html>
